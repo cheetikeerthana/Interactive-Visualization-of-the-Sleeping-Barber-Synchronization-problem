@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleeping Barber Problem - Interactive Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #a03939, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .simulation-panel {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .barbershop {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .barber-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .barber {
+            font-size: 5em;
+            transition: all 0.5s ease;
+            text-align: center;
+        }
+
+        .barber.sleeping {
+            animation: snore 3s infinite;
+        }
+
+        .barber.working {
+            animation: working 1s infinite;
+        }
+
+        @keyframes snore {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.05) rotate(2deg); }
+            50% { transform: scale(1.1) rotate(-2deg); }
+            75% { transform: scale(1.05) rotate(2deg); }
+        }
+
+        @keyframes working {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        .barber-chair {
+            width: 120px;
+            height: 120px;
+            background: #8B4513;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2em;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .waiting-room {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .waiting-room h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .chairs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .chair {
+            width: 80px;
+            height: 80px;
+            background: #28a745;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .chair.occupied {
+            background: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffc107;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #007bff;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .parameters {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .param-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .param-group label {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        select {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            background: white;
+        }
+
+        .event-log {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .event-log h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        #log-container {
+            height: 200px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 5px;
+            animation: fadeIn 1s ease;
+        }
+
+        .log-entry.info { background: rgba(23, 162, 184, 0.3); }
+        .log-entry.success { background: rgba(40, 167, 69, 0.3); }
+        .log-entry.warning { background: rgba(255, 193, 7, 0.3); }
+        .log-entry.error { background: rgba(220, 53, 69, 0.3); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .explanation {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .explanation h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .concepts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .concepts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .concept {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #007bff;
+        }
+
+        .concept h4 {
+            color: #17a2b8;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .concept p {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sleeping Barber Problem</h1>
+            <p class="subtitle">An Interactive Visualization of Process Synchronization</p>
+        </header>
+
+        <div class="content">
+            <div class="simulation-panel">
+                <div class="barbershop">
+                    <div class="barber-area">
+                        <div class="barber sleeping">💤SLEEPING
+                        </div>
+                        <div class="barber-chair">Empty</div>
+                    </div>
+
+                    <div class="waiting-room">
+                        <h3>Waiting Room</h3>
+                        <div class="chairs">
+                            <!-- Chairs will be generated by JavaScript -->
+                        </div>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="waiting-count">0</div>
+                                <div>Waiting</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="served-count">0</div>
+                                <div>Served</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="lost-count">0</div>
+                                <div>Lost</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="controls">
+                    <button id="add-customer-btn">Add Customer</button>
+                    <button id="reset-btn">Reset Simulation</button>
+                </div>
+
+                <div class="parameters">
+                    <div class="param-group">
+                        <label for="haircut-time">Select Haircut Duration</label>
+                        <select id="haircut-time">
+                            <option value="60000">1 minute (Fast)</option>
+                            <option value="120000" selected>2 minutes (Medium)</option>
+                            <option value="180000">3 minutes (Slow)</option>
+                        </select>
+                    </div>
+
+                    <div class="param-group">
+                        <label for="chairs-count">Number of Waiting Chairs</label>
+                        <select id="chairs-count">
+                            <option value="2">2 chairs</option>
+                            <option value="3">3 chairs</option>
+                            <option value="4"> 4chairs</option>
+                            <option value="5" selected>5 chairs</option>
+                            <option value="7">7 chairs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="event-log">
+                    <h3>Event Log</h3>
+                    <div id="log-container">
+                        <div class="log-entry info">Simulation ready. Click "Add Customer" to start.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>How the Sleeping Barber Problem Works</h3>
+            <div class="concepts">
+                <div class="concept">
+                    <h4>The Problem</h4>
+                    <p>The barber sleeps when there are no customers. When a customer arrives, they check if the barber is sleeping. If so, they wake the barber and get a haircut. If the barber is busy, they wait in a chair. If no chairs are available, the customer leaves.</p>
+                </div>
+                <div class="concept">
+                    <h4>The Solution</h4>
+                    <p>Using semaphores to synchronize the barber and customer threads ensures that only one customer is served at a time, the barber sleeps when there are no customers, and customers are handled correctly when chairs are available or full.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SleepingBarber {
+            constructor() {
+                this.isRunning = false;
+                this.customerId = 1;
+                this.waitingCustomers = [];
+                this.isBarberSleeping = true;
+                this.isBarberWorking = false;
+                this.servedCount = 0;
+                this.lostCount = 0;
+                
+                // Simulation parameters
+                this.haircutTime = 60000; // ms
+                this.chairsCount = 5;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.initializeChairs();
+                this.updateStats();
+            }
+
+            initializeElements() {
+                // Get DOM elements
+                this.barberElement = document.querySelector('.barber');
+                this.currentCustomerElement = document.querySelector('.barber-chair');
+                this.waitingChairsElement = document.querySelector('.chairs');
+                this.waitingCountElement = document.getElementById('waiting-count');
+                this.servedCountElement = document.getElementById('served-count');
+                this.lostCountElement = document.getElementById('lost-count');
+                this.logContainer = document.getElementById('log-container');
+                
+                // Control buttons
+                this.addCustomerBtn = document.getElementById('add-customer-btn');
+                this.resetBtn = document.getElementById('reset-btn');
+                
+                // Parameters
+                this.haircutTimeSelect = document.getElementById('haircut-time');
+                this.chairsCountSelect = document.getElementById('chairs-count');
+            }
+
+            setupEventListeners() {
+                this.addCustomerBtn.addEventListener('click', () => this.addCustomer());
+                this.resetBtn.addEventListener('click', () => this.resetSimulation());
+                
+                // Parameter change listeners
+                this.haircutTimeSelect.addEventListener('change', (e) => {
+                    this.haircutTime = parseInt(e.target.value);
+                });
+                
+                this.chairsCountSelect.addEventListener('change', (e) => {
+                    this.chairsCount = parseInt(e.target.value);
+                    this.initializeChairs();
+                });
+            }
+
+            initializeChairs() {
+                this.waitingChairsElement.innerHTML = '';
+                for (let i = 0; i < this.chairsCount; i++) {
+                    const chair = document.createElement('div');
+                    chair.className = 'chair';
+                    chair.textContent = 'Empty';
+                    chair.id = `chair-${i}`;
+                    this.waitingChairsElement.appendChild(chair);
+                }
+                
+                // Update waiting customers display
+                this.updateWaitingRoom();
+            }
+
+            resetSimulation() {
+                // Reset all state
+                this.customerId = 1;
+                this.waitingCustomers = [];
+                this.isBarberSleeping = true;
+                this.isBarberWorking = false;
+                this.servedCount = 0;
+                this.lostCount = 0;
+                
+                // Reset UI
+                this.updateBarberState();
+                this.currentCustomerElement.textContent = 'Empty';
+                this.logContainer.innerHTML = '<div class="log-entry info">Simulation reset. Click "Add Customer" to start.</div>';
+                
+                // Reset chairs
+                this.initializeChairs();
+                this.updateStats();
+            }
+
+            addCustomer() {
+                const customer = {
+                    id: this.customerId++,
+                    arrivedAt: new Date()
+                };
+                
+                this.log(`Customer ${customer.id} arrived`, 'info');
+                
+                this.processCustomer(customer);
+            }
+
+            processCustomer(customer) {
+                if (this.isBarberSleeping) {
+                    // Wake up barber and serve customer immediately
+                    this.wakeUpBarber(customer);
+                } else if (this.waitingCustomers.length < this.chairsCount) {
+                    // Add to waiting room
+                    this.addToWaitingRoom(customer);
+                } else {
+                    // No chairs available - customer leaves
+                    this.customerLeaves(customer);
+                }
+            }
+
+            wakeUpBarber(customer) {
+                this.isBarberSleeping = false;
+                this.isBarberWorking = true;
+                this.updateBarberState();
+                
+                this.currentCustomerElement.textContent = `Customer ${customer.id}`;
+                
+                this.log(`Barber woke up and started cutting hair for Customer ${customer.id}`, 'success');
+                
+                // Simulate haircut
+                setTimeout(() => {
+                    this.finishHaircut(customer);
+                }, this.haircutTime);
+            }
+
+            addToWaitingRoom(customer) {
+                this.waitingCustomers.push(customer);
+                this.updateWaitingRoom();
+                
+                const chairIndex = this.waitingCustomers.length - 1;
+                const chair = document.getElementById(`chair-${chairIndex}`);
+                if (chair) {
+                    chair.textContent = `Customer ${customer.id}`;
+                    chair.classList.add('occupied');
+                }
+                
+                this.log(`Customer ${customer.id} is waiting in chair ${chairIndex + 1}`, 'info');
+            }
+
+            finishHaircut(customer) {
+                this.servedCount++;
+                this.updateStats();
+                this.log(`Barber finished cutting hair for Customer ${customer.id}`, 'success');
+                
+                if (this.waitingCustomers.length > 0) {
+                    // Serve next customer from waiting room
+                    const nextCustomer = this.waitingCustomers.shift();
+                    this.updateWaitingRoom();
+                    this.currentCustomerElement.textContent = `Customer ${nextCustomer.id}`;
+                    
+                    this.log(`Barber started cutting hair for Customer ${nextCustomer.id}`, 'success');
+                    
+                    // Continue with next haircut
+                    setTimeout(() => {
+                        this.finishHaircut(nextCustomer);
+                    }, this.haircutTime);
+                } else {
+                    // No more customers - barber sleeps
+                    this.isBarberWorking = false;
+                    this.isBarberSleeping = true;
+                    this.updateBarberState();
+                    this.currentCustomerElement.textContent = 'Empty';
+                    this.log('Barber is sleeping - no customers', 'warning');
+                }
+            }
+
+            customerLeaves(customer) {
+                this.lostCount++;
+                this.updateStats();
+                this.log(`Customer ${customer.id} left - no available chairs`, 'error');
+            }
+
+            updateBarberState() {
+                if (this.isBarberSleeping) {
+                    this.barberElement.className = 'sleeping';
+                    this.barberElement.textContent = '💤FREE/SLEEPING';
+                } else if (this.isBarberWorking) {
+                    this.barberElement.className = 'working';
+                    this.barberElement.textContent = '💇BUSY';
+                }
+            }
+
+            updateWaitingRoom() {
+                this.waitingCountElement.textContent = this.waitingCustomers.length;
+                
+                // Update all chairs
+                for (let i = 0; i < this.chairsCount; i++) {
+                    const chair = document.getElementById(`chair-${i}`);
+                    if (chair) {
+                        if (i < this.waitingCustomers.length) {
+                            const customer = this.waitingCustomers[i];
+                            chair.textContent = `Customer ${customer.id}`;
+                            chair.classList.add('occupied');
+                        } else {
+                            chair.textContent = 'Empty';
+                            chair.classList.remove('occupied');
+                        }
+                    }
+                }
+            }
+
+            updateStats() {
+                this.servedCountElement.textContent = this.servedCount;
+                this.lostCountElement.textContent = this.lostCount;
+            }
+
+            log(message, type = 'info') {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                
+                const timestamp = new Date().toLocaleTimeString();
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                
+                this.logContainer.appendChild(logEntry);
+                this.logContainer.scrollTop = this.logContainer.scrollHeight;
+            }
+        }
+
+        // Initialize the simulation when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SleepingBarber();
+        });
+    </script>
+</body>
+</html>
