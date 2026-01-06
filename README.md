@@ -31,6 +31,10 @@ LEARNING OUTCOME
 This project helps understand how synchronization problems
 occur and how they are solved in real operating systems.
 
+PROJECT IS LIVE AT-
+https://cheetikeerthana.github.io/Interactive-Visualization-of-the-Sleeping-Barber-Synchronization-problem/
+ 
 AUTHOR
 CH Keerthana
 B.Tech – Information Technology
+
